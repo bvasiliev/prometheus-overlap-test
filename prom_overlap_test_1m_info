@@ -1,0 +1,39 @@
+#!/bin/bash
+
+EXPORTER_PATH="/var/lib/prometheus/node-exporter"
+TEST_NAME=${0##*/} # - self basename as metric name
+PROM_FILE="${EXPORTER_PATH}/${TEST_NAME}.prom"
+TMP_FILE="${PROM_FILE}.\$\$"
+
+LABELS_FIRST=(label0 label1)
+LABELS_SECOND=(AAAAAAAA BBBBBBBB)
+
+create_header() {
+    echo -e "# HELP ${TEST_NAME} test\n# TYPE ${TEST_NAME} gauge"
+}
+
+echo_metric() {
+    echo ${TEST_NAME}'{label_first="'${1}'",label_second="'${2}'"} 1.0'
+}
+
+change_metrics() {
+    for LABEL in "${LABELS_FIRST[@]}"; do
+        if grep  ${LABEL} ${PROM_FILE} | grep ${LABELS_SECOND[0]} > /dev/null; then
+            echo_metric ${LABEL} ${LABELS_SECOND[1]}
+        else
+            echo_metric ${LABEL} ${LABELS_SECOND[0]}
+        fi
+    done
+}
+
+new_metrics() {
+    for i in 0 1; do
+        echo_metric ${LABELS_FIRST[i]} ${LABELS_SECOND[i]}
+    done
+}
+
+
+create_header > ${TMP_FILE}
+[ -f ${PROM_FILE} ] && change_metrics >> ${TMP_FILE} || new_metrics >> ${TMP_FILE}
+mv ${TMP_FILE} ${PROM_FILE}
+

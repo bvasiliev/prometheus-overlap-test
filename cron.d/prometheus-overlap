@@ -1,0 +1,4 @@
+*/1 * * * * root /opt/prometheus/prom_overlap_test_1m_info
+*/5 * * * * root /opt/prometheus/prom_overlap_test_5m_info 
+*/15 * * * * root /opt/prometheus/prom_overlap_test_15m_info
+*/15 * * * * root /opt/prometheus/prom_overlap_test_15m_nonsense
